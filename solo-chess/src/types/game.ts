@@ -112,11 +112,40 @@ export interface GameRecord {
   gameId: string;
   playerColor: PieceColor;
   difficulty: Difficulty;
+  customDepth?: number;
   result: GameResult;
   endReason: GameEndReason;
+
+  // 기보 정보
+  fen: string; // 최종 포지션
+  initialFen: string; // 시작 포지션
   pgn: string;
+  moves: Move[]; // 상세 기보
+
+  // 통계
   moveCount: number;
-  duration: number; // 게임 시간 (초)
+  duration: number; // 초
   hintsUsed: number;
-  playedAt: number;
+  undosUsed: number;
+
+  // 시간 정보
+  playedAt: number; // timestamp
+  timeControl: TimeControl;
+
+  // 분석 데이터 (선택적)
+  analysis?: {
+    blunders: number;
+    mistakes: number;
+    inaccuracies: number;
+    averageCentipawnLoss: number;
+  };
+}
+
+// 복기용 상태
+export interface ReplayState {
+  gameRecord: GameRecord;
+  currentMoveIndex: number; // -1은 시작 포지션
+  fen: string; // 현재 표시 중인 포지션
+  isPlaying: boolean; // 자동 재생 중
+  playbackSpeed: 'slow' | 'normal' | 'fast';
 }

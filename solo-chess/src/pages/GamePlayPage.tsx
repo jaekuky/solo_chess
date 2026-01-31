@@ -32,6 +32,7 @@ import type {
   PieceColor,
   CapturedPieces as CapturedPiecesType,
   PieceType,
+  Move,
   GameResult,
   GameEndReason,
 } from '@/types';
@@ -98,11 +99,26 @@ export function GamePlayPage() {
     },
   });
 
+  const aiGameStateRef = useRef<{
+    fen: string;
+    moveHistory: Move[];
+  }>({ fen: gameState.fen, moveHistory: [] });
+
   const handleGameEnd = useCallback(
-    (result: GameResult, reason: GameEndReason) => {
+    (
+      result: GameResult,
+      reason: GameEndReason,
+      finalState?: { fen: string; moveHistory: Move[]; pgn: string },
+    ) => {
       timerActions.pause();
       if (result !== null) {
-        endGame(result, reason);
+        const stateToUse =
+          finalState ?? {
+            fen: aiGameStateRef.current.fen,
+            moveHistory: aiGameStateRef.current.moveHistory,
+            pgn: aiGameStateRef.current.moveHistory.map((m) => m.san).join(' '),
+          };
+        endGame(result, reason, stateToUse);
         setTimeout(() => navigate(ROUTES.GAME_RESULT), 1500);
       }
     },
@@ -129,6 +145,13 @@ export function GamePlayPage() {
       }
     },
   });
+
+  useEffect(() => {
+    aiGameStateRef.current = {
+      fen: aiGameState.fen,
+      moveHistory: aiGameState.moveHistory,
+    };
+  }, [aiGameState.fen, aiGameState.moveHistory]);
 
   useEffect(() => {
     const hadHint = !!prevHintRef.current;

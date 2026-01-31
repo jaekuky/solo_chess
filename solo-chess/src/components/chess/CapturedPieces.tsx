@@ -34,6 +34,9 @@ export function CapturedPieces({
     0
   );
 
+  // 잡힌 기물은 상대 색상의 기물이므로 반대 색상의 심볼을 표시
+  const capturedColor: PieceColor = color === 'w' ? 'b' : 'w';
+
   if (pieces.length === 0) {
     return (
       <div
@@ -53,9 +56,9 @@ export function CapturedPieces({
         <span
           key={`${piece}-${index}`}
           className="text-xl opacity-80"
-          title={`잡힌 ${color === 'w' ? '백' : '흑'} ${piece}`}
+          title={`잡힌 ${capturedColor === 'w' ? '백' : '흑'} ${piece}`}
         >
-          {PIECE_SYMBOLS[piece][color]}
+          {PIECE_SYMBOLS[piece][capturedColor]}
         </span>
       ))}
       {totalValue > 0 && (

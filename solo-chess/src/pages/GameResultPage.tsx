@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/common';
 import { MoveHistory } from '@/components/chess';
 import { useGameStore, useStatisticsStore } from '@/stores';
+import { useGameStorage } from '@/hooks';
 import { ROUTES, DIFFICULTY_CONFIG } from '@/constants';
 import { cn } from '@/utils';
 
@@ -12,6 +13,7 @@ export function GameResultPage() {
   const navigate = useNavigate();
   const { game, resetGame } = useGameStore();
   const { recordGameResult } = useStatisticsStore();
+  const { addGameRecord } = useGameStorage();
   const hasRecorded = useRef(false);
 
   useEffect(() => {
@@ -31,16 +33,21 @@ export function GameResultPage() {
       hasRecorded.current = true;
       const duration = Math.floor((game.endedAt - game.startedAt) / 1000);
       const moveCount = game.moveHistory.length;
-      recordGameResult(
-        game.result,
-        game.difficulty,
+      recordGameResult({
+        result: game.result,
+        difficulty: game.difficulty,
+        playerColor: game.playerColor,
         duration,
         moveCount,
-        game.hintsUsed,
-        game.endReason === 'checkmate'
-      );
+        hintsUsed: game.hintsUsed,
+        undosUsed: 0,
+        endReason: game.endReason ?? 'resignation',
+        isCheckmate: game.endReason === 'checkmate',
+      });
+      addGameRecord(game);
     }
   }, [
+    game,
     game.status,
     game.result,
     game.startedAt,
@@ -50,6 +57,7 @@ export function GameResultPage() {
     game.hintsUsed,
     game.endReason,
     recordGameResult,
+    addGameRecord,
   ]);
 
   if (game.status !== 'ended' || !game.result) {
@@ -113,7 +121,7 @@ export function GameResultPage() {
   };
 
   const handleReplay = () => {
-    // 6단계에서 구현
+    navigate(`${ROUTES.REPLAY}/${game.gameId}`);
   };
 
   const handleHome = () => {

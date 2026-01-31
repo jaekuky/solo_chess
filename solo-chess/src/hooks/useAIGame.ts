@@ -21,13 +21,23 @@ import {
 } from '@/utils/aiDifficulty';
 import { INITIAL_FEN } from '@/constants';
 
+interface GameEndState {
+  fen: string;
+  moveHistory: Move[];
+  pgn: string;
+}
+
 interface UseAIGameOptions {
   difficulty: Difficulty;
   customDepth?: number;
   playerColor: PieceColor;
   initialFen?: string;
   initialMoveHistory?: Move[];
-  onGameEnd?: (result: GameResult, reason: GameEndReason) => void;
+  onGameEnd?: (
+    result: GameResult,
+    reason: GameEndReason,
+    finalState?: GameEndState,
+  ) => void;
   onAIMove?: (move: Move) => void;
 }
 
@@ -108,7 +118,26 @@ export function useAIGame(options: UseAIGameOptions): [AIGameState, AIGameAction
       else if (g.isInsufficientMaterial()) reason = 'insufficient_material';
       else reason = 'fifty_move_rule';
     }
-    onGameEnd?.(result, reason);
+
+    const history = g.history({ verbose: true });
+    const moveHistory: Move[] = history.map((m) => ({
+      from: m.from as Square,
+      to: m.to as Square,
+      piece: m.piece as Move['piece'],
+      color: m.color as PieceColor,
+      captured: m.captured as Move['captured'],
+      promotion: m.promotion as Move['promotion'],
+      flags: m.flags,
+      san: m.san,
+      lan: m.lan ?? `${m.from}${m.to}`,
+    }));
+
+    const finalState: GameEndState = {
+      fen: g.fen(),
+      moveHistory,
+      pgn: moveHistory.map((m) => m.san).join(' '),
+    };
+    onGameEnd?.(result, reason, finalState);
   }, [playerColor, onGameEnd]);
 
   const handleAIMove = useCallback(

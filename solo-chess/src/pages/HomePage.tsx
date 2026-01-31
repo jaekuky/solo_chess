@@ -1,91 +1,156 @@
 // src/pages/HomePage.tsx
 
 import { Link } from 'react-router-dom';
+import { Button } from '@/components/common';
+import { WinRateChart } from '@/components/statistics';
+import { useStatisticsStore, useLearningStore } from '@/stores';
+import { useGameStorage } from '@/hooks';
 import { ROUTES } from '@/constants';
-import { useGameStore, useStatisticsStore } from '@/stores';
 
 export function HomePage() {
-  const { game } = useGameStore();
-  const { statistics } = useStatisticsStore();
+  const { statistics, getWinRate } = useStatisticsStore();
+  const { progress } = useLearningStore();
+  const { loadAutoSave } = useGameStorage();
 
-  const hasOngoingGame = game.status === 'playing';
+  const autoSavedGame = loadAutoSave();
+  const hasOngoingGame =
+    autoSavedGame && autoSavedGame.status === 'playing';
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8">
-      {/* 히어로 섹션 */}
-      <section className="text-center py-8">
-        <h2 className="text-3xl font-bold mb-4">
-          Solo Chess에 오신 것을 환영합니다
-        </h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-8">
-          AI와 함께 체스 실력을 키워보세요. 당신의 페이스에 맞춰 학습하고
-          도전할 수 있습니다.
+    <div className="max-w-2xl mx-auto">
+      {/* 환영 메시지 */}
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold mb-2">Solo Chess</h1>
+        <p className="text-gray-500">
+          AI와 함께 체스 실력을 키워보세요
         </p>
+      </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link
-            to={ROUTES.GAME_SETTINGS}
-            className="inline-flex items-center justify-center px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors"
-          >
-            🎮 빠른 게임 시작
-          </Link>
-
-          {hasOngoingGame && (
-            <Link
-              to={ROUTES.GAME_PLAY}
-              className="inline-flex items-center justify-center px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
-            >
-              ▶️ 진행 중인 게임 이어하기
+      {/* 진행 중인 게임 */}
+      {hasOngoingGame && (
+        <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-200 dark:border-yellow-800">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">진행 중인 게임이 있습니다</p>
+              <p className="text-sm text-gray-500">
+                {autoSavedGame.moveHistory.length}수 진행됨
+              </p>
+            </div>
+            <Link to={ROUTES.GAME_PLAY}>
+              <Button size="sm">이어하기</Button>
             </Link>
-          )}
-        </div>
-      </section>
-
-      {/* 간단한 통계 */}
-      {statistics.totalGames > 0 && (
-        <section className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-          <h3 className="text-lg font-semibold mb-4">내 기록</h3>
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <p className="text-2xl font-bold text-primary-600">
-                {statistics.totalGames}
-              </p>
-              <p className="text-sm text-gray-500">총 게임</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-win">
-                {statistics.totalWins}
-              </p>
-              <p className="text-sm text-gray-500">승리</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-600">
-                {statistics.totalGames > 0
-                  ? Math.round(
-                      (statistics.totalWins / statistics.totalGames) * 100
-                    )
-                  : 0}
-                %
-              </p>
-              <p className="text-sm text-gray-500">승률</p>
-            </div>
           </div>
-        </section>
+        </div>
       )}
 
-      {/* 체스가 처음이신가요? */}
-      <section className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6">
-        <h3 className="text-lg font-semibold mb-2">체스가 처음이신가요?</h3>
-        <p className="text-gray-600 dark:text-gray-400 mb-4">
-          걱정 마세요! 기본 규칙부터 차근차근 배울 수 있습니다.
-        </p>
-        <Link
-          to={ROUTES.RULES}
-          className="text-primary-600 dark:text-primary-400 font-medium hover:underline"
-        >
-          체스 규칙 배우기 →
+      {/* 빠른 시작 */}
+      <div className="mb-8">
+        <Link to={ROUTES.GAME_SETTINGS}>
+          <Button size="lg" className="w-full py-4 text-lg">
+            🎮 새 게임 시작
+          </Button>
         </Link>
-      </section>
+      </div>
+
+      {/* 통계 요약 */}
+      {statistics.totalGames > 0 && (
+        <div className="mb-8 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold">내 전적</h2>
+            <Link
+              to={ROUTES.HISTORY}
+              className="text-sm text-primary-600 hover:underline"
+            >
+              자세히 보기 →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4 text-center mb-4">
+            <div>
+              <p className="text-2xl font-bold">
+                {statistics.totalGames}
+              </p>
+              <p className="text-xs text-gray-500">총 게임</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-green-500">
+                {getWinRate().toFixed(0)}%
+              </p>
+              <p className="text-xs text-gray-500">승률</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-yellow-500">
+                {statistics.currentWinStreak}
+              </p>
+              <p className="text-xs text-gray-500">연승</p>
+            </div>
+          </div>
+
+          <WinRateChart
+            wins={statistics.totalWins}
+            losses={statistics.totalLosses}
+            draws={statistics.totalDraws}
+            size="sm"
+          />
+        </div>
+      )}
+
+      {/* 메뉴 카드 */}
+      <div className="grid grid-cols-2 gap-4">
+        <Link
+          to={ROUTES.LEARN}
+          className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
+        >
+          <span className="text-3xl block mb-2">📚</span>
+          <h3 className="font-semibold">학습</h3>
+          <p className="text-sm text-gray-500">
+            규칙과 전략을 배우세요
+          </p>
+          {progress.puzzlesSolved > 0 && (
+            <p className="text-xs text-primary-500 mt-2">
+              퍼즐 {progress.puzzlesSolved}개 해결
+            </p>
+          )}
+        </Link>
+
+        <Link
+          to={ROUTES.HISTORY}
+          className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
+        >
+          <span className="text-3xl block mb-2">📊</span>
+          <h3 className="font-semibold">기록</h3>
+          <p className="text-sm text-gray-500">
+            통계와 기록을 확인하세요
+          </p>
+          {statistics.totalGames > 0 && (
+            <p className="text-xs text-primary-500 mt-2">
+              {statistics.totalGames}게임 플레이
+            </p>
+          )}
+        </Link>
+
+        <Link
+          to={ROUTES.SAVED_GAMES}
+          className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
+        >
+          <span className="text-3xl block mb-2">💾</span>
+          <h3 className="font-semibold">저장된 게임</h3>
+          <p className="text-sm text-gray-500">
+            저장한 게임을 이어하세요
+          </p>
+        </Link>
+
+        <Link
+          to={ROUTES.SETTINGS}
+          className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
+        >
+          <span className="text-3xl block mb-2">⚙️</span>
+          <h3 className="font-semibold">설정</h3>
+          <p className="text-sm text-gray-500">
+            테마와 옵션을 설정하세요
+          </p>
+        </Link>
+      </div>
     </div>
   );
 }

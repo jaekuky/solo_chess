@@ -61,7 +61,11 @@ interface GameStore {
   startNewGame: (settings: GameSettings) => void;
   loadSavedGame: (state: GameState) => void;
   resetGame: () => void;
-  endGame: (result: GameResult, reason: GameEndReason) => void;
+  endGame: (
+    result: GameResult,
+    reason: GameEndReason,
+    stateOverrides?: Partial<Pick<GameState, 'fen' | 'moveHistory' | 'pgn'>>,
+  ) => void;
 
   // 게임 진행
   setStatus: (status: GameStatus) => void;
@@ -149,10 +153,11 @@ export const useGameStore = create<GameStore>()(
           set({ game: initialGameState });
         },
 
-        endGame: (result, reason) => {
+        endGame: (result, reason, stateOverrides) => {
           set((state) => ({
             game: {
               ...state.game,
+              ...stateOverrides,
               status: 'ended',
               result,
               endReason: reason,

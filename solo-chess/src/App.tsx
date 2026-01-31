@@ -49,7 +49,7 @@ function App() {
             <Route path={ROUTES.GAME_SETTINGS} element={<GameSettingsPage />} />
             <Route path={ROUTES.GAME_PLAY} element={<GamePlayPage />} />
             <Route path={ROUTES.GAME_RESULT} element={<GameResultPage />} />
-            <Route path={ROUTES.REPLAY} element={<ReplayPage />} />
+            <Route path={`${ROUTES.REPLAY}/:gameId`} element={<ReplayPage />} />
             <Route path={ROUTES.LEARN} element={<LearnPage />} />
             <Route path={ROUTES.RULES} element={<RulesPage />} />
             <Route path={ROUTES.PUZZLE} element={<PuzzlePage />} />

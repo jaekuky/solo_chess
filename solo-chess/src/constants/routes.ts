@@ -7,7 +7,6 @@ export const ROUTES = {
   GAME_SETTINGS: '/game/settings',
   GAME_PLAY: '/game/play',
   GAME_RESULT: '/game/result',
-  REPLAY: '/replay/:gameId',
 
   // 학습 관련
   LEARN: '/learn',
@@ -17,6 +16,7 @@ export const ROUTES = {
 
   // 기록 관련
   HISTORY: '/history',
+  REPLAY: '/history/replay',
   SAVED_GAMES: '/saved-games',
 
   // 설정
@@ -34,6 +34,7 @@ export const ROUTE_NAMES: Record<string, string> = {
   [ROUTES.PUZZLE]: '퍼즐',
   [ROUTES.STRATEGY]: '전략 가이드',
   [ROUTES.HISTORY]: '기록',
+  [ROUTES.REPLAY]: '복기',
   [ROUTES.SAVED_GAMES]: '저장된 게임',
   [ROUTES.SETTINGS]: '설정',
 };

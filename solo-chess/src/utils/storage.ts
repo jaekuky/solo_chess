@@ -1,6 +1,7 @@
 // src/utils/storage.ts
 
 import type { GameState, SavedGame, GameRecord } from '@/types';
+import { INITIAL_FEN } from '@/constants';
 
 // Storage Keys
 const STORAGE_KEYS = {
@@ -169,16 +170,25 @@ export function gameStateToRecord(state: GameState): GameRecord {
       ? Math.floor((state.endedAt - state.startedAt) / 1000)
       : 0;
 
+  // result가 없는 경우 기본값으로 'draw' 사용
+  const result = state.result ?? 'draw';
+
   return {
     gameId: state.gameId,
     playerColor: state.playerColor,
     difficulty: state.difficulty,
-    result: state.result,
-    endReason: state.endReason,
-    pgn: state.pgn,
+    customDepth: state.customDepth,
+    result,
+    endReason: state.endReason ?? 'resignation',
+    fen: state.fen,
+    initialFen: INITIAL_FEN,
+    pgn: state.pgn || '',
+    moves: state.moveHistory,
     moveCount: state.moveHistory.length,
     duration,
     hintsUsed: state.hintsUsed,
+    undosUsed: 0,
     playedAt: state.endedAt || Date.now(),
+    timeControl: state.timeControl,
   };
 }
