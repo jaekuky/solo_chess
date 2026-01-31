@@ -134,6 +134,7 @@ export function GamePlayPage() {
     const hadHint = !!prevHintRef.current;
     const hasHint = !!aiGameState.hintMove;
     if (hasHint && !hadHint) {
+      // 힌트가 새로 생성되었을 때 카운트 증가 - 의도된 동작
       setHintsUsedCount((c) => c + 1);
     }
     prevHintRef.current = aiGameState.hintMove;
@@ -150,6 +151,7 @@ export function GamePlayPage() {
       aiGameActions.stopAI();
       timerActions.pause();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const capturedPieces = useMemo((): CapturedPiecesType => {

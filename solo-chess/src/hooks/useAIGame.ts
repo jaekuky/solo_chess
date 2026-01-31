@@ -74,6 +74,8 @@ export function useAIGame(options: UseAIGameOptions): [AIGameState, AIGameAction
     : AI_DIFFICULTY_SETTINGS[difficulty];
 
   const gameRef = useRef(new Chess(initialFen));
+  /* eslint-disable react-hooks/refs */
+  // 렌더링 중 게임 상태 읽기 - 의도된 패턴 (Chess 인스턴스를 ref로 관리)
   const [fen, setFen] = useState(gameRef.current.fen());
   const [moveHistory, setMoveHistory] = useState<Move[]>(initialMoveHistory);
   const [isAIThinking, setIsAIThinking] = useState(false);
@@ -87,6 +89,27 @@ export function useAIGame(options: UseAIGameOptions): [AIGameState, AIGameAction
   const isCheckmate = game.isCheckmate();
   const isStalemate = game.isStalemate();
   const isDraw = game.isDraw();
+  /* eslint-enable react-hooks/refs */
+
+  const handleGameEnd = useCallback(() => {
+    const g = gameRef.current;
+    let result: GameResult = 'draw';
+    let reason: GameEndReason = 'draw_agreement';
+
+    if (g.isCheckmate()) {
+      result = g.turn() === playerColor ? 'lose' : 'win';
+      reason = 'checkmate';
+    } else if (g.isStalemate()) {
+      result = 'draw';
+      reason = 'stalemate';
+    } else if (g.isDraw()) {
+      result = 'draw';
+      if (g.isThreefoldRepetition()) reason = 'threefold_repetition';
+      else if (g.isInsufficientMaterial()) reason = 'insufficient_material';
+      else reason = 'fifty_move_rule';
+    }
+    onGameEnd?.(result, reason);
+  }, [playerColor, onGameEnd]);
 
   const handleAIMove = useCallback(
     (bestMove: string) => {
@@ -124,28 +147,8 @@ export function useAIGame(options: UseAIGameOptions): [AIGameState, AIGameAction
       }
       setIsAIThinking(false);
     },
-    [onAIMove]
+    [onAIMove, handleGameEnd]
   );
-
-  const handleGameEnd = useCallback(() => {
-    const g = gameRef.current;
-    let result: GameResult = 'draw';
-    let reason: GameEndReason = 'draw_agreement';
-
-    if (g.isCheckmate()) {
-      result = g.turn() === playerColor ? 'lose' : 'win';
-      reason = 'checkmate';
-    } else if (g.isStalemate()) {
-      result = 'draw';
-      reason = 'stalemate';
-    } else if (g.isDraw()) {
-      result = 'draw';
-      if (g.isThreefoldRepetition()) reason = 'threefold_repetition';
-      else if (g.isInsufficientMaterial()) reason = 'insufficient_material';
-      else reason = 'fifty_move_rule';
-    }
-    onGameEnd?.(result, reason);
-  }, [playerColor, onGameEnd]);
 
   const selectWeakenedMove = useCallback(
     (type: 'mistake' | 'blunder' | 'random', bestMove: string) => {

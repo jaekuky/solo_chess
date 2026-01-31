@@ -90,7 +90,8 @@ export function useChessGame(
       isDraw: game.isDraw(),
       isGameOver: game.isGameOver(),
     }),
-    [fen]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [fen, game]
   );
 
   const capturedPieces = useMemo((): CapturedPieces => {

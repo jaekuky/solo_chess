@@ -59,8 +59,9 @@ export function useGameStorage(): UseGameStorageReturn {
     setGameRecords(records);
   }, []);
 
-  // 초기 로드
+  // 초기 로드 - 컴포넌트 마운트 시 데이터를 로드하는 의도된 동작
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadSavedGames();
     loadGameRecords();
     updateStorageUsage();
