@@ -232,10 +232,3 @@ export function getGuidesByCategory(
 ): StrategyGuide[] {
   return STRATEGY_GUIDES.filter((g) => g.category === category);
 }
-
-// 난이도별 가이드 필터
-export function getGuidesByDifficulty(
-  difficulty: StrategyGuide['difficulty'],
-): StrategyGuide[] {
-  return STRATEGY_GUIDES.filter((g) => g.difficulty === difficulty);
-}

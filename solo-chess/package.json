@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "dev": "./node_modules/.bin/vite",
+    "build": "./node_modules/.bin/tsc -b && ./node_modules/.bin/vite build",
+    "lint": "./node_modules/.bin/eslint .",
+    "preview": "./node_modules/.bin/vite preview"
   },
   "dependencies": {
     "chess.js": "^1.4.0",
@@ -16,7 +16,6 @@
     "react-chessboard": "^5.8.6",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.0",
-    "stockfish.js": "^10.0.2",
     "tailwind-merge": "^3.4.0",
     "zustand": "^5.0.10"
   },

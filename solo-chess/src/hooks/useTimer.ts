@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { PieceColor } from '@/types';
+import { playSound } from '@/utils/sounds';
 
 interface TimerState {
   whiteTime: number; // 백의 남은 시간 (초)
@@ -29,6 +30,9 @@ interface UseTimerOptions {
   increment?: number; // 매 수마다 추가되는 시간 (초), Fischer 방식
 }
 
+// 시간 경고 임계치 (초) - 컴포넌트 외부에 정의하여 참조 안정성 보장
+const WARNING_THRESHOLDS = [30, 10] as const;
+
 export function useTimer(options: UseTimerOptions): [TimerState, TimerActions] {
   const { initialTime, onTimeExpired, onTick, increment = 0 } = options;
 
@@ -42,6 +46,10 @@ export function useTimer(options: UseTimerOptions): [TimerState, TimerActions] {
 
   // 인터벌 참조
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  
+  // 시간 경고 사운드 재생 여부 추적 (중복 재생 방지)
+  const whiteWarningPlayedRef = useRef<Set<number>>(new Set());
+  const blackWarningPlayedRef = useRef<Set<number>>(new Set());
 
   // 타이머 틱
   useEffect(() => {
@@ -50,6 +58,14 @@ export function useTimer(options: UseTimerOptions): [TimerState, TimerActions] {
         if (activeColor === 'w') {
           setWhiteTime((prev) => {
             const newTime = Math.max(0, prev - 1);
+
+            // 시간 경고 사운드 재생
+            for (const threshold of WARNING_THRESHOLDS) {
+              if (newTime === threshold && !whiteWarningPlayedRef.current.has(threshold)) {
+                playSound('timerWarning');
+                whiteWarningPlayedRef.current.add(threshold);
+              }
+            }
 
             if (newTime === 0) {
               setIsExpired(true);
@@ -63,6 +79,14 @@ export function useTimer(options: UseTimerOptions): [TimerState, TimerActions] {
         } else {
           setBlackTime((prev) => {
             const newTime = Math.max(0, prev - 1);
+
+            // 시간 경고 사운드 재생
+            for (const threshold of WARNING_THRESHOLDS) {
+              if (newTime === threshold && !blackWarningPlayedRef.current.has(threshold)) {
+                playSound('timerWarning');
+                blackWarningPlayedRef.current.add(threshold);
+              }
+            }
 
             if (newTime === 0) {
               setIsExpired(true);
@@ -139,6 +163,9 @@ export function useTimer(options: UseTimerOptions): [TimerState, TimerActions] {
     setIsRunning(false);
     setIsExpired(false);
     setExpiredColor(null);
+    // 경고 사운드 추적 초기화
+    whiteWarningPlayedRef.current.clear();
+    blackWarningPlayedRef.current.clear();
   }, []);
 
   // 시간 추가

@@ -28,6 +28,7 @@ import {
   DIFFICULTY_CONFIG,
   TIME_CONTROL_CONFIG,
 } from '@/constants';
+import { playSound } from '@/utils/sounds';
 import type {
   PieceColor,
   CapturedPieces as CapturedPiecesType,
@@ -165,6 +166,9 @@ export function GamePlayPage() {
 
   useEffect(() => {
     aiGameActions.initAI();
+
+    // 게임 시작 사운드 재생
+    playSound('gameStart');
 
     if (hasTimeControl && playerColor === 'w') {
       timerActions.start('w');
@@ -369,7 +373,15 @@ export function GamePlayPage() {
     setIsHintLoading(true);
     await aiGameActions.requestHint();
     setIsHintLoading(false);
+    // 힌트 사운드는 hintMove가 설정될 때 재생됨 (아래 useEffect에서)
   }, [aiGameActions]);
+
+  // 힌트가 새로 표시될 때 사운드 재생
+  useEffect(() => {
+    if (aiGameState.hintMove && !prevHintRef.current) {
+      playSound('hint');
+    }
+  }, [aiGameState.hintMove]);
 
   const handleClearHint = useCallback(() => {
     aiGameActions.clearHint();
@@ -626,7 +638,7 @@ export function GamePlayPage() {
         <div className="lg:w-72 flex flex-col gap-4">
           <MoveHistoryPanel moves={aiGameState.moveHistory} />
 
-          {settings.enableHints && (
+          {settings.gameOptions.enableHints && (
             <HintDisplay
               hint={aiGameState.hintMove}
               isLoading={isHintLoading}
@@ -648,12 +660,12 @@ export function GamePlayPage() {
               }
               isPlaying={!aiGameState.isGameOver}
               onUndo={handleUndo}
-              onHint={settings.enableHints ? handleHint : undefined}
+              onHint={settings.gameOptions.enableHints ? handleHint : undefined}
               onSave={handleSave}
               onLoad={() => setShowLoadModal(true)}
               onResign={handleResign}
               onNewGame={handleNewGame}
-              hintsEnabled={settings.enableHints}
+              hintsEnabled={settings.gameOptions.enableHints}
               saveEnabled
             />
           </div>

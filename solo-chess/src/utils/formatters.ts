@@ -1,11 +1,5 @@
 // src/utils/formatters.ts
 
-export function formatTime(seconds: number): string {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-}
-
 export function formatDuration(seconds: number): string {
   const hours = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
@@ -30,9 +24,4 @@ export function formatRelativeTime(timestamp: number): string {
   if (days === 1) return '어제';
   if (days < 7) return `${days}일 전`;
   return new Date(timestamp).toLocaleDateString('ko-KR');
-}
-
-export function formatWinRate(wins: number, total: number): string {
-  if (total === 0) return '0%';
-  return `${Math.round((wins / total) * 100)}%`;
 }

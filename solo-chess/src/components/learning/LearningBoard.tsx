@@ -5,7 +5,7 @@ import { Chessboard } from 'react-chessboard';
 import type { Square } from '@/types';
 import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
-import type { BoardStyle } from '@/types';
+import { BOARD_STYLE_CONFIG, ANIMATION_SPEED_CONFIG } from '@/constants';
 
 interface LearningBoardProps {
   fen: string;
@@ -18,18 +18,6 @@ interface LearningBoardProps {
   showCoordinates?: boolean;
   className?: string;
 }
-
-// 보드 스타일
-const BOARD_STYLES: Record<
-  BoardStyle,
-  { lightSquare: string; darkSquare: string }
-> = {
-  classic: { lightSquare: '#f0d9b5', darkSquare: '#b58863' },
-  modern: { lightSquare: '#eeeed2', darkSquare: '#769656' },
-  wood: { lightSquare: '#e8c99b', darkSquare: '#a17a4d' },
-  blue: { lightSquare: '#dee3e6', darkSquare: '#8ca2ad' },
-  green: { lightSquare: '#ffffdd', darkSquare: '#86a666' },
-};
 
 export function LearningBoard({
   fen,
@@ -45,8 +33,12 @@ export function LearningBoard({
   const { settings } = useSettingsStore();
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
 
-  const boardColors =
-    BOARD_STYLES[settings.boardStyle] ?? BOARD_STYLES.classic;
+  const boardStyleConfig =
+    BOARD_STYLE_CONFIG[settings.boardStyle] ?? BOARD_STYLE_CONFIG.classic;
+  const boardColors = {
+    lightSquare: boardStyleConfig.light,
+    darkSquare: boardStyleConfig.dark,
+  };
 
   // 커스텀 칸 스타일
   const customSquareStyles = useMemo(() => {
@@ -90,20 +82,11 @@ export function LearningBoard({
     [interactive, onSquareClick],
   );
 
-  const animationDuration = useMemo(() => {
-    switch (settings.animationSpeed) {
-      case 'none':
-        return 0;
-      case 'fast':
-        return 100;
-      case 'normal':
-        return 200;
-      case 'slow':
-        return 300;
-      default:
-        return 200;
-    }
-  }, [settings.animationSpeed]);
+  const animationDuration = useMemo(
+    () =>
+      ANIMATION_SPEED_CONFIG[settings.animationSpeed]?.duration ?? 200,
+    [settings.animationSpeed]
+  );
 
   return (
     <div className={cn('relative', className)}>
@@ -115,7 +98,9 @@ export function LearningBoard({
           squareStyles: customSquareStyles,
           lightSquareStyle: { backgroundColor: boardColors.lightSquare },
           darkSquareStyle: { backgroundColor: boardColors.darkSquare },
-          showNotation: showCoordinates ?? settings.showCoordinates,
+          showNotation:
+            showCoordinates ??
+            settings.gameOptions.showCoordinates !== 'none',
           animationDurationInMs: animationDuration,
           allowDragging: false,
           arrows: arrowOptions,

@@ -5,3 +5,4 @@ export * from './chess';
 export * from './layout';
 export * from './learning';
 export * from './statistics';
+export * from './settings';

@@ -64,3 +64,67 @@
     grid-template-rows: repeat(8, 1fr);
   }
 }
+
+/* ========== 접근성 ========== */
+
+/* 고대비 모드 */
+.high-contrast {
+  filter: contrast(1.2);
+}
+
+.high-contrast .text-gray-500 {
+  @apply text-gray-700;
+}
+
+.dark .high-contrast .text-gray-500 {
+  @apply text-gray-300;
+}
+
+.high-contrast .text-gray-400 {
+  @apply text-gray-600;
+}
+
+.dark .high-contrast .text-gray-400 {
+  color: #9ca3af; /* gray-400 */
+}
+
+/* 큰 텍스트 */
+.large-text {
+  font-size: 112.5%; /* 기본 16px -> 18px */
+}
+
+.large-text .text-sm {
+  font-size: 1rem; /* text-base: 16px */
+  line-height: 1.5rem;
+}
+
+.large-text .text-xs {
+  font-size: 0.875rem; /* text-sm: 14px */
+  line-height: 1.25rem;
+}
+
+/* 모션 감소 */
+.reduce-motion,
+.reduce-motion * {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+/* 포커스 스타일 개선 */
+:focus-visible {
+  @apply outline-none ring-2 ring-primary-500 ring-offset-2 dark:ring-offset-gray-900;
+}
+
+/* 스크린 리더 전용 텍스트 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

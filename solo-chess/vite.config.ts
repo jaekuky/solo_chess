@@ -12,16 +12,4 @@ export default defineConfig({
   worker: {
     format: 'es',
   },
-  optimizeDeps: {
-    exclude: ['stockfish.js'],
-  },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          stockfish: ['stockfish.js'],
-        },
-      },
-    },
-  },
 });

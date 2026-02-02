@@ -6,7 +6,7 @@ import { Chessboard } from 'react-chessboard';
 import type { Puzzle, Square } from '@/types';
 import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
-import type { BoardStyle } from '@/types';
+import { BOARD_STYLE_CONFIG, ANIMATION_SPEED_CONFIG } from '@/constants';
 
 interface InteractivePuzzleBoardProps {
   puzzle: Puzzle;
@@ -17,17 +17,6 @@ interface InteractivePuzzleBoardProps {
 }
 
 type PuzzleState = 'playing' | 'correct' | 'incorrect' | 'completed';
-
-const BOARD_STYLES: Record<
-  BoardStyle,
-  { lightSquare: string; darkSquare: string }
-> = {
-  classic: { lightSquare: '#f0d9b5', darkSquare: '#b58863' },
-  modern: { lightSquare: '#eeeed2', darkSquare: '#769656' },
-  wood: { lightSquare: '#e8c99b', darkSquare: '#a17a4d' },
-  blue: { lightSquare: '#dee3e6', darkSquare: '#8ca2ad' },
-  green: { lightSquare: '#ffffdd', darkSquare: '#86a666' },
-};
 
 export function InteractivePuzzleBoard({
   puzzle,
@@ -50,8 +39,12 @@ export function InteractivePuzzleBoard({
   } | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  const boardColors =
-    BOARD_STYLES[settings.boardStyle] ?? BOARD_STYLES.classic;
+  const boardStyleConfig =
+    BOARD_STYLE_CONFIG[settings.boardStyle] ?? BOARD_STYLE_CONFIG.classic;
+  const boardColors = {
+    lightSquare: boardStyleConfig.light,
+    darkSquare: boardStyleConfig.dark,
+  };
 
   // 퍼즐 리셋 - puzzle이 변경될 때 상태를 초기화하는 의도된 동작
   useEffect(() => {
@@ -270,20 +263,11 @@ export function InteractivePuzzleBoard({
     return styles;
   }, [selectedSquare, legalMoves, lastMove]);
 
-  const animationDuration = useMemo(() => {
-    switch (settings.animationSpeed) {
-      case 'none':
-        return 0;
-      case 'fast':
-        return 100;
-      case 'normal':
-        return 200;
-      case 'slow':
-        return 300;
-      default:
-        return 200;
-    }
-  }, [settings.animationSpeed]);
+  const animationDuration = useMemo(
+    () =>
+      ANIMATION_SPEED_CONFIG[settings.animationSpeed]?.duration ?? 200,
+    [settings.animationSpeed]
+  );
 
   const canDragPiece = useCallback(
     () => puzzleState === 'playing',

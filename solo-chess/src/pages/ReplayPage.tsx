@@ -7,19 +7,11 @@ import { MoveHistoryPanel } from '@/components/chess';
 import { Button } from '@/components/common';
 import { useGameHistory, useReplay } from '@/hooks';
 import { useSettingsStore } from '@/stores';
-import { ROUTES, DIFFICULTY_CONFIG } from '@/constants';
+import { ROUTES, DIFFICULTY_CONFIG, BOARD_STYLE_CONFIG } from '@/constants';
 import { formatDuration } from '@/utils';
 import { storage } from '@/utils/storage';
 import type { GameRecord } from '@/types';
 import { cn } from '@/utils';
-
-const BOARD_STYLES = {
-  classic: { light: '#f0d9b5', dark: '#b58863' },
-  modern: { light: '#eeeed2', dark: '#769656' },
-  wood: { light: '#e8c99b', dark: '#a17a4d' },
-  blue: { light: '#dee3e6', dark: '#8ca2ad' },
-  green: { light: '#ffffdd', dark: '#86a666' },
-};
 
 const END_REASON_LABELS: Record<string, string> = {
   checkmate: '체크메이트',
@@ -114,8 +106,7 @@ function ReplayContent({
   } = useReplay({ gameRecord });
 
   const boardColors =
-    BOARD_STYLES[settings.boardStyle as keyof typeof BOARD_STYLES] ??
-    BOARD_STYLES.classic;
+    BOARD_STYLE_CONFIG[settings.boardStyle] ?? BOARD_STYLE_CONFIG.classic;
 
   const customSquareStyles = lastMoveSquares
     ? {

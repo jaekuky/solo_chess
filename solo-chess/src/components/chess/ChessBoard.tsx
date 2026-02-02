@@ -6,7 +6,7 @@ import type { Square } from '@/types';
 import type { PieceColor } from '@/types';
 import { useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
-import type { BoardStyle } from '@/types';
+import { BOARD_STYLE_CONFIG, ANIMATION_SPEED_CONFIG } from '@/constants';
 
 interface ChessBoardProps {
   fen: string;
@@ -25,17 +25,6 @@ interface ChessBoardProps {
   hintSquares?: { from: Square; to: Square } | null;
   className?: string;
 }
-
-const BOARD_STYLES: Record<
-  BoardStyle,
-  { lightSquare: string; darkSquare: string }
-> = {
-  classic: { lightSquare: '#f0d9b5', darkSquare: '#b58863' },
-  modern: { lightSquare: '#eeeed2', darkSquare: '#769656' },
-  wood: { lightSquare: '#e8c99b', darkSquare: '#a17a4d' },
-  blue: { lightSquare: '#dee3e6', darkSquare: '#8ca2ad' },
-  green: { lightSquare: '#ffffdd', darkSquare: '#86a666' },
-};
 
 export function ChessBoard({
   fen,
@@ -57,15 +46,19 @@ export function ChessBoard({
   const { settings } = useSettingsStore();
   const orientation =
     boardOrientation ?? (playerColor === 'w' ? 'white' : 'black');
-  const boardColors =
-    BOARD_STYLES[settings.boardStyle] ?? BOARD_STYLES.classic;
+  const boardStyleConfig =
+    BOARD_STYLE_CONFIG[settings.boardStyle] ?? BOARD_STYLE_CONFIG.classic;
+  const boardColors = {
+    lightSquare: boardStyleConfig.light,
+    darkSquare: boardStyleConfig.dark,
+  };
 
   const customSquareStyles = useMemo(() => {
     const styles: Record<string, React.CSSProperties> = {};
     if (selectedSquare) {
       styles[selectedSquare] = { backgroundColor: 'rgba(255, 255, 0, 0.4)' };
     }
-    if (settings.showLegalMoves && legalMoves.length > 0) {
+    if (settings.gameOptions.showLegalMoves && legalMoves.length > 0) {
       legalMoves.forEach((square) => {
         styles[square] = {
           ...styles[square],
@@ -76,7 +69,7 @@ export function ChessBoard({
         };
       });
     }
-    if (settings.showLastMove && lastMove) {
+    if (settings.gameOptions.showLastMove && lastMove) {
       const lastMoveColor = 'rgba(155, 199, 0, 0.41)';
       styles[lastMove.from] = {
         ...styles[lastMove.from],
@@ -115,8 +108,8 @@ export function ChessBoard({
     isCheck,
     checkSquare,
     hintSquares,
-    settings.showLegalMoves,
-    settings.showLastMove,
+    settings.gameOptions.showLegalMoves,
+    settings.gameOptions.showLastMove,
   ]);
 
   const handleSquareClick = useCallback(
@@ -164,20 +157,11 @@ export function ChessBoard({
     [disabled]
   );
 
-  const animationDuration = useMemo(() => {
-    switch (settings.animationSpeed) {
-      case 'none':
-        return 0;
-      case 'fast':
-        return 100;
-      case 'normal':
-        return 200;
-      case 'slow':
-        return 300;
-      default:
-        return 200;
-    }
-  }, [settings.animationSpeed]);
+  const animationDuration = useMemo(
+    () =>
+      ANIMATION_SPEED_CONFIG[settings.animationSpeed]?.duration ?? 200,
+    [settings.animationSpeed]
+  );
 
   return (
     <div className={cn('relative', className)}>
@@ -189,7 +173,7 @@ export function ChessBoard({
           squareStyles: customSquareStyles,
           lightSquareStyle: { backgroundColor: boardColors.lightSquare },
           darkSquareStyle: { backgroundColor: boardColors.darkSquare },
-          showNotation: settings.showCoordinates,
+          showNotation: settings.gameOptions.showCoordinates !== 'none',
           animationDurationInMs: animationDuration,
           allowDragging: !disabled,
           canDragPiece: canDragPiece,

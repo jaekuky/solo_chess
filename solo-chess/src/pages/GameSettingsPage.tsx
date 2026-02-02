@@ -48,7 +48,8 @@ function OptionButton({
 export function GameSettingsPage() {
   const navigate = useNavigate();
   const { startNewGame } = useGameStore();
-  const { settings } = useSettingsStore();
+  const { settings, setDefaultDifficulty, setDefaultTimeControl } =
+    useSettingsStore();
 
   const [difficulty, setDifficulty] = useState<Difficulty>(
     settings.defaultDifficulty
@@ -66,6 +67,8 @@ export function GameSettingsPage() {
           ? 'w'
           : 'b'
         : playerColor;
+    setDefaultDifficulty(difficulty);
+    setDefaultTimeControl(timeControl);
     startNewGame({
       difficulty,
       customDepth: difficulty === 'custom' ? customDepth : undefined,
@@ -73,7 +76,16 @@ export function GameSettingsPage() {
       timeControl,
     });
     navigate(ROUTES.GAME_PLAY);
-  }, [difficulty, customDepth, playerColor, timeControl, startNewGame, navigate]);
+  }, [
+    difficulty,
+    customDepth,
+    playerColor,
+    timeControl,
+    setDefaultDifficulty,
+    setDefaultTimeControl,
+    startNewGame,
+    navigate,
+  ]);
 
   const handleQuickStart = useCallback(() => {
     const finalPlayerColor: PieceColor =

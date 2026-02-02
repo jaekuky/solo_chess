@@ -19,6 +19,7 @@ import {
   shouldWeakenMove,
   type AIDifficultySettings,
 } from '@/utils/aiDifficulty';
+import { playMoveSound, playGameEndSound, playSound } from '@/utils/sounds';
 import { INITIAL_FEN } from '@/constants';
 
 interface GameEndState {
@@ -137,6 +138,10 @@ export function useAIGame(options: UseAIGameOptions): [AIGameState, AIGameAction
       moveHistory,
       pgn: moveHistory.map((m) => m.san).join(' '),
     };
+
+    // 게임 종료 사운드 재생
+    playGameEndSound(result);
+
     onGameEnd?.(result, reason, finalState);
   }, [playerColor, onGameEnd]);
 
@@ -167,6 +172,10 @@ export function useAIGame(options: UseAIGameOptions): [AIGameState, AIGameAction
             san: moveResult.san,
             lan: moveResult.lan,
           };
+
+          // AI 이동 사운드 재생
+          playMoveSound(move);
+
           setMoveHistory((prev) => [...prev, move]);
           onAIMove?.(move);
           if (g.isGameOver()) handleGameEnd();
@@ -290,6 +299,10 @@ export function useAIGame(options: UseAIGameOptions): [AIGameState, AIGameAction
             san: moveResult.san,
             lan: moveResult.lan,
           };
+
+          // 플레이어 이동 사운드 재생
+          playMoveSound(move);
+
           setMoveHistory((prev) => [...prev, move]);
           if (g.isGameOver()) {
             handleGameEnd();
@@ -299,7 +312,8 @@ export function useAIGame(options: UseAIGameOptions): [AIGameState, AIGameAction
           return true;
         }
       } catch {
-        // invalid move
+        // 잘못된 이동 사운드 재생
+        playSound('illegal');
       }
       return false;
     },

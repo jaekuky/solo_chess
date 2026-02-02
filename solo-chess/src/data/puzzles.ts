@@ -187,8 +187,3 @@ export function getRandomPuzzle(difficulty?: Puzzle['difficulty']): Puzzle {
   const puzzles = difficulty ? getPuzzlesByDifficulty(difficulty) : PUZZLES;
   return puzzles[Math.floor(Math.random() * puzzles.length)];
 }
-
-// 특정 테마의 퍼즐 가져오기
-export function getPuzzlesByTheme(theme: string): Puzzle[] {
-  return PUZZLES.filter((p) => p.themes.includes(theme));
-}

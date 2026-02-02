@@ -84,30 +84,12 @@ export const PIECE_VALUES: Record<string, number> = {
   k: 0,   // 킹 (잡을 수 없음)
 };
 
-// 기물 이름 (한글)
-export const PIECE_NAMES: Record<string, string> = {
-  p: '폰',
-  n: '나이트',
-  b: '비숍',
-  r: '룩',
-  q: '퀸',
-  k: '킹',
-};
-
 // AI 이름
 export const AI_NAMES: Record<Difficulty, string> = {
   beginner: '루키 봇',
   intermediate: '미들 봇',
   advanced: '마스터 봇',
   custom: '커스텀 봇',
-};
-
-// AI 상태 메시지
-export const AI_STATUS_MESSAGES = {
-  thinking: '생각 중...',
-  calculating: '수를 계산하고 있습니다...',
-  ready: '준비 완료',
-  error: 'AI 오류가 발생했습니다',
 };
 
 // 초기 FEN (표준 시작 위치)
