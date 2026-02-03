@@ -12,3 +12,5 @@ export { StrategyPage } from './StrategyPage';
 export { HistoryPage } from './HistoryPage';
 export { SavedGamesPage } from './SavedGamesPage';
 export { SettingsPage } from './SettingsPage';
+export { LobbyPage } from './LobbyPage';
+export { MultiplayerGamePage } from './MultiplayerGamePage';

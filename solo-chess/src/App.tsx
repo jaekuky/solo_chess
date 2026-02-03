@@ -19,6 +19,8 @@ import {
   HistoryPage,
   SavedGamesPage,
   SettingsPage,
+  LobbyPage,
+  MultiplayerGamePage,
 } from '@/pages';
 
 function App() {
@@ -46,6 +48,8 @@ function App() {
       <Layout>
         <Routes>
           <Route path={ROUTES.HOME} element={<HomePage />} />
+          <Route path={ROUTES.LOBBY} element={<LobbyPage />} />
+          <Route path={`${ROUTES.MULTIPLAYER_GAME}/:gameId`} element={<MultiplayerGamePage />} />
           <Route path={ROUTES.GAME_SETTINGS} element={<GameSettingsPage />} />
           <Route path={ROUTES.GAME_PLAY} element={<GamePlayPage />} />
           <Route path={ROUTES.GAME_RESULT} element={<GameResultPage />} />

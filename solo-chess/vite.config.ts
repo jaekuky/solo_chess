@@ -6,6 +6,8 @@ import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 
 export default defineConfig({
+  // NEXT_PUBLIC_ 환경변수도 클라이언트에서 접근 가능하도록 설정
+  envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
   plugins: [
     react(),
     VitePWA({

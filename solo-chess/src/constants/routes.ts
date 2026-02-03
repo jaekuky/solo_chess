@@ -3,7 +3,11 @@
 export const ROUTES = {
   HOME: '/',
 
-  // 게임 관련
+  // 멀티플레이어
+  LOBBY: '/lobby',
+  MULTIPLAYER_GAME: '/multiplayer/game',
+
+  // 게임 관련 (AI 대전)
   GAME_SETTINGS: '/game/settings',
   GAME_PLAY: '/game/play',
   GAME_RESULT: '/game/result',

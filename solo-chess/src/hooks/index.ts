@@ -2,6 +2,7 @@
 
 export { useStockfish } from './useStockfish';
 export { useAIGame } from './useAIGame';
+export { useMultiplayerGame } from './useMultiplayerGame';
 export { useTimer } from './useTimer';
 export { useGameStorage } from './useGameStorage';
 export { useGameHistory } from './useGameHistory';

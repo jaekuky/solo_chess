@@ -1,0 +1,244 @@
+// src/stores/authStore.ts
+// 인증 상태 관리 스토어
+
+import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
+import { supabase } from '@/lib/supabase';
+import type { User, Session } from '@supabase/supabase-js';
+import type { Profile } from '@/types/supabase';
+
+interface AuthState {
+  user: User | null;
+  session: Session | null;
+  profile: Profile | null;
+  isLoading: boolean;
+  error: string | null;
+}
+
+interface AuthActions {
+  // 인증 상태 초기화
+  initialize: () => Promise<void>;
+
+  // 이메일/비밀번호 로그인
+  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+
+  // 회원가입
+  signUp: (
+    email: string,
+    password: string,
+    username: string
+  ) => Promise<{ success: boolean; error?: string }>;
+
+  // 로그아웃
+  signOut: () => Promise<void>;
+
+  // 프로필 조회
+  fetchProfile: (userId: string) => Promise<void>;
+
+  // 프로필 업데이트
+  updateProfile: (updates: Partial<Profile>) => Promise<{ success: boolean; error?: string }>;
+
+  // 에러 초기화
+  clearError: () => void;
+
+  // 내부 상태 설정
+  setUser: (user: User | null) => void;
+  setSession: (session: Session | null) => void;
+}
+
+type AuthStore = AuthState & AuthActions;
+
+export const useAuthStore = create<AuthStore>()(
+  devtools(
+    (set, get) => ({
+      // 초기 상태
+      user: null,
+      session: null,
+      profile: null,
+      isLoading: true,
+      error: null,
+
+      // 인증 상태 초기화 (앱 시작 시 호출)
+      initialize: async () => {
+        try {
+          set({ isLoading: true });
+
+          // 현재 세션 확인
+          const {
+            data: { session },
+            error,
+          } = await supabase.auth.getSession();
+
+          if (error) throw error;
+
+          if (session?.user) {
+            set({ user: session.user, session });
+            await get().fetchProfile(session.user.id);
+          }
+
+          // 인증 상태 변경 리스너 설정
+          supabase.auth.onAuthStateChange(async (event, session) => {
+            set({ user: session?.user ?? null, session });
+
+            if (event === 'SIGNED_IN' && session?.user) {
+              await get().fetchProfile(session.user.id);
+            } else if (event === 'SIGNED_OUT') {
+              set({ profile: null });
+            }
+          });
+        } catch (error) {
+          console.error('Auth initialization error:', error);
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      // 로그인
+      signIn: async (email, password) => {
+        try {
+          set({ isLoading: true, error: null });
+
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+
+          if (error) {
+            set({ error: error.message });
+            return { success: false, error: error.message };
+          }
+
+          if (data.user) {
+            await get().fetchProfile(data.user.id);
+          }
+
+          return { success: true };
+        } catch (error) {
+          const message = error instanceof Error ? error.message : '로그인 실패';
+          set({ error: message });
+          return { success: false, error: message };
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      // 회원가입
+      signUp: async (email, password, username) => {
+        try {
+          set({ isLoading: true, error: null });
+
+          // 사용자명 중복 체크
+          const { data: existingUser } = await supabase
+            .from('profiles')
+            .select('username')
+            .eq('username', username)
+            .single();
+
+          if (existingUser) {
+            set({ error: '이미 사용 중인 사용자명입니다.' });
+            return { success: false, error: '이미 사용 중인 사용자명입니다.' };
+          }
+
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: {
+                username,
+              },
+            },
+          });
+
+          if (error) {
+            set({ error: error.message });
+            return { success: false, error: error.message };
+          }
+
+          // 이메일 확인이 필요한 경우
+          if (data.user && !data.session) {
+            return {
+              success: true,
+              error: '이메일로 전송된 인증 링크를 확인해주세요.',
+            };
+          }
+
+          return { success: true };
+        } catch (error) {
+          const message = error instanceof Error ? error.message : '회원가입 실패';
+          set({ error: message });
+          return { success: false, error: message };
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      // 로그아웃
+      signOut: async () => {
+        try {
+          set({ isLoading: true });
+          await supabase.auth.signOut();
+          set({ user: null, session: null, profile: null });
+        } catch (error) {
+          console.error('Sign out error:', error);
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      // 프로필 조회
+      fetchProfile: async (userId) => {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userId)
+            .single();
+
+          if (error) {
+            console.error('Profile fetch error:', error);
+            return;
+          }
+
+          set({ profile: data });
+        } catch (error) {
+          console.error('Profile fetch error:', error);
+        }
+      },
+
+      // 프로필 업데이트
+      updateProfile: async (updates) => {
+        const { user } = get();
+        if (!user) {
+          return { success: false, error: '로그인이 필요합니다.' };
+        }
+
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .update(updates)
+            .eq('id', user.id)
+            .select()
+            .single();
+
+          if (error) {
+            return { success: false, error: error.message };
+          }
+
+          set({ profile: data as Profile });
+          return { success: true };
+        } catch (error) {
+          const message = error instanceof Error ? error.message : '프로필 업데이트 실패';
+          return { success: false, error: message };
+        }
+      },
+
+      // 에러 초기화
+      clearError: () => set({ error: null }),
+
+      // 내부 상태 설정
+      setUser: (user) => set({ user }),
+      setSession: (session) => set({ session }),
+    }),
+    { name: 'AuthStore' }
+  )
+);

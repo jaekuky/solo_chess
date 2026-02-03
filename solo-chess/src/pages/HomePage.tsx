@@ -44,10 +44,15 @@ export function HomePage() {
       )}
 
       {/* 빠른 시작 */}
-      <div className="mb-8">
-        <Link to={ROUTES.GAME_SETTINGS}>
+      <div className="mb-8 space-y-3">
+        <Link to={ROUTES.LOBBY}>
           <Button size="lg" className="w-full py-4 text-lg">
-            🎮 새 게임 시작
+            🌐 멀티플레이어
+          </Button>
+        </Link>
+        <Link to={ROUTES.GAME_SETTINGS}>
+          <Button size="lg" variant="outline" className="w-full py-4 text-lg">
+            🤖 AI와 대전
           </Button>
         </Link>
       </div>
