@@ -1,6 +1,6 @@
 // src/components/layout/index.ts
 
 export { Header } from './Header';
-export { Footer } from './Footer';
-export { Navigation } from './Navigation';
 export { Layout } from './Layout';
+export { ResponsiveLayout } from './ResponsiveLayout';
+export { MobileNavigation } from './MobileNavigation';

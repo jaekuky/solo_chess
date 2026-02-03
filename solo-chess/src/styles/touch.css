@@ -1,0 +1,81 @@
+/* src/styles/touch.css */
+
+/* 터치 피드백 */
+.touch-feedback {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* 터치 타겟 최소 크기 (44px) */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* 터치 영역 확대 */
+.touch-expand {
+  position: relative;
+}
+
+.touch-expand::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  bottom: -8px;
+  left: -8px;
+}
+
+/* 스와이프 방지 */
+.no-swipe {
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+
+/* 드래그 선택 방지 */
+.no-select {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Safe area insets */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-left {
+  padding-left: env(safe-area-inset-left);
+}
+
+.safe-area-right {
+  padding-right: env(safe-area-inset-right);
+}
+
+/* iOS 모멘텀 스크롤 */
+.momentum-scroll {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+}
+
+/* 활성 상태 스타일 (터치) */
+@media (hover: none) and (pointer: coarse) {
+  .hover\:bg-gray-100:active {
+    background-color: rgb(243 244 246);
+  }
+  
+  .dark .dark\:hover\:bg-gray-800:active {
+    background-color: rgb(31 41 55);
+  }
+}
+
+/* 포커스 아웃라인 (터치 디바이스에서 숨김) */
+@media (hover: none) {
+  *:focus {
+    outline: none;
+  }
+}

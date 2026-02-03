@@ -1,5 +1,8 @@
 /* src/styles/globals.css */
 
+@import './animations.css';
+@import './touch.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

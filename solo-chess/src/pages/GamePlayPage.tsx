@@ -20,7 +20,7 @@ import {
   HintDisplay,
 } from '@/components/chess';
 import { ConfirmDialog } from '@/components/common';
-import { useAIGame, useTimer, useGameStorage } from '@/hooks';
+import { useAIGame, useTimer, useGameStorage, useResponsive } from '@/hooks';
 import { useGameStore, useSettingsStore } from '@/stores';
 import {
   ROUTES,
@@ -486,17 +486,8 @@ export function GamePlayPage() {
     }
   }, [aiGameState.moveHistory.length, resetGameStore, navigate]);
 
-  const [boardSize, setBoardSize] = useState(400);
-  useEffect(() => {
-    const updateBoardSize = () => {
-      const maxWidth = Math.min(window.innerWidth - 32, 560);
-      const maxHeight = window.innerHeight - 400;
-      setBoardSize(Math.min(maxWidth, maxHeight));
-    };
-    updateBoardSize();
-    window.addEventListener('resize', updateBoardSize);
-    return () => window.removeEventListener('resize', updateBoardSize);
-  }, []);
+  // 반응형 훅 사용
+  const { boardSize } = useResponsive(true);
 
   const hintSquares = aiGameState.hintMove
     ? { from: aiGameState.hintMove.from, to: aiGameState.hintMove.to }

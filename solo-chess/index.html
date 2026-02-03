@@ -1,10 +1,36 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>solo-chess</title>
+    <link rel="icon" type="image/png" href="/icons/icon-32.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    
+    <!-- PWA 메타 태그 -->
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Solo Chess" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    
+    <!-- 스플래시 스크린 (iOS) -->
+    <link rel="apple-touch-startup-image" href="/splash/splash-640x1136.png" media="(device-width: 320px) and (device-height: 568px)" />
+    <link rel="apple-touch-startup-image" href="/splash/splash-750x1334.png" media="(device-width: 375px) and (device-height: 667px)" />
+    <link rel="apple-touch-startup-image" href="/splash/splash-1242x2208.png" media="(device-width: 414px) and (device-height: 736px)" />
+    
+    <!-- 매니페스트 -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- SEO -->
+    <meta name="description" content="AI와 함께하는 체스 학습 앱. 입문자부터 고수까지, 실력을 키워보세요." />
+    <meta name="keywords" content="체스, chess, AI, 학습, 퍼즐, 게임" />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Solo Chess" />
+    <meta property="og:description" content="AI와 함께하는 체스 학습 앱" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/og-image.png" />
+    
+    <title>Solo Chess - AI 체스</title>
   </head>
   <body>
     <div id="root"></div>
