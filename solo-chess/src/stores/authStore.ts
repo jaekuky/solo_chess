@@ -22,6 +22,9 @@ interface AuthActions {
   // 이메일/비밀번호 로그인
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
 
+  // Google OAuth 로그인
+  signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+
   // 회원가입
   signUp: (
     email: string,
@@ -115,6 +118,37 @@ export const useAuthStore = create<AuthStore>()(
           return { success: true };
         } catch (error) {
           const message = error instanceof Error ? error.message : '로그인 실패';
+          set({ error: message });
+          return { success: false, error: message };
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      // Google OAuth 로그인
+      signInWithGoogle: async () => {
+        try {
+          set({ isLoading: true, error: null });
+
+          const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+              redirectTo: `${window.location.origin}/`,
+              queryParams: {
+                access_type: 'offline',
+                prompt: 'consent',
+              },
+            },
+          });
+
+          if (error) {
+            set({ error: error.message });
+            return { success: false, error: error.message };
+          }
+
+          return { success: true };
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Google 로그인 실패';
           set({ error: message });
           return { success: false, error: message };
         } finally {
