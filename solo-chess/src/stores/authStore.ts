@@ -161,16 +161,22 @@ export const useAuthStore = create<AuthStore>()(
         try {
           set({ isLoading: true, error: null });
 
-          // 사용자명 중복 체크
-          const { data: existingUser } = await supabase
-            .from('profiles')
-            .select('username')
-            .eq('username', username)
-            .maybeSingle();
+          // 사용자명 중복 체크 (테이블이 없어도 회원가입 진행)
+          try {
+            const { data: existingUser, error: checkError } = await supabase
+              .from('profiles')
+              .select('username')
+              .eq('username', username)
+              .maybeSingle();
 
-          if (existingUser) {
-            set({ error: '이미 사용 중인 사용자명입니다.' });
-            return { success: false, error: '이미 사용 중인 사용자명입니다.' };
+            // 테이블 관련 오류가 아닌 경우에만 중복 체크
+            if (!checkError && existingUser) {
+              set({ error: '이미 사용 중인 사용자명입니다.' });
+              return { success: false, error: '이미 사용 중인 사용자명입니다.' };
+            }
+          } catch (checkErr) {
+            // 테이블이 없거나 기타 오류 - 중복 체크 건너뛰고 진행
+            console.warn('Username check skipped:', checkErr);
           }
 
           const { data, error } = await supabase.auth.signUp({
@@ -226,16 +232,19 @@ export const useAuthStore = create<AuthStore>()(
             .from('profiles')
             .select('*')
             .eq('id', userId)
-            .single();
+            .maybeSingle();
 
           if (error) {
-            console.error('Profile fetch error:', error);
+            // 테이블이 없거나 조회 실패 시 조용히 처리
+            console.warn('Profile fetch skipped:', error.message);
             return;
           }
 
-          set({ profile: data });
+          if (data) {
+            set({ profile: data });
+          }
         } catch (error) {
-          console.error('Profile fetch error:', error);
+          console.warn('Profile fetch error:', error);
         }
       },
 
