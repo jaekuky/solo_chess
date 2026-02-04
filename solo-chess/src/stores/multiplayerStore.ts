@@ -86,11 +86,7 @@ export const useMultiplayerStore = create<MultiplayerStore>()(
               id,
               time_control,
               created_at,
-              white_player_id,
-              profiles!games_white_player_id_fkey (
-                username,
-                rating
-              )
+              white_player_id
             `
             )
             .eq('status', 'waiting')
@@ -99,11 +95,31 @@ export const useMultiplayerStore = create<MultiplayerStore>()(
 
           if (error) throw error;
 
+          // 플레이어 ID 목록 추출
+          const playerIds = (data || [])
+            .map((game: { white_player_id: string | null }) => game.white_player_id)
+            .filter((id): id is string => id !== null);
+
+          // 프로필 정보 별도 조회
+          let profilesMap: Record<string, { username: string; rating: number }> = {};
+          
+          if (playerIds.length > 0) {
+            const { data: profiles } = await supabase
+              .from('profiles')
+              .select('id, username, rating')
+              .in('id', playerIds);
+
+            if (profiles) {
+              profilesMap = profiles.reduce((acc, profile) => {
+                acc[profile.id] = { username: profile.username, rating: profile.rating };
+                return acc;
+              }, {} as Record<string, { username: string; rating: number }>);
+            }
+          }
+
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const lobbyGames: LobbyGame[] = (data || []).map((game: any) => {
-            const profile = Array.isArray(game.profiles)
-              ? game.profiles[0]
-              : game.profiles;
+            const profile = game.white_player_id ? profilesMap[game.white_player_id] : null;
             return {
               id: game.id,
               hostUsername: profile?.username || 'Unknown',
