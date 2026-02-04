@@ -166,7 +166,7 @@ export const useAuthStore = create<AuthStore>()(
             .from('profiles')
             .select('username')
             .eq('username', username)
-            .single();
+            .maybeSingle();
 
           if (existingUser) {
             set({ error: '이미 사용 중인 사용자명입니다.' });
