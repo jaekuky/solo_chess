@@ -194,6 +194,33 @@ export const useAuthStore = create<AuthStore>()(
             return { success: false, error: error.message };
           }
 
+          // 회원가입 성공 시 profiles 테이블에 직접 레코드 생성
+          // (트리거가 작동하지 않는 경우를 대비)
+          if (data.user) {
+            try {
+              const { error: profileError } = await supabase
+                .from('profiles')
+                .upsert({
+                  id: data.user.id,
+                  username: username,
+                  rating: 1200,
+                  games_played: 0,
+                  games_won: 0,
+                  games_lost: 0,
+                  games_drawn: 0,
+                }, {
+                  onConflict: 'id',
+                  ignoreDuplicates: true,
+                });
+
+              if (profileError) {
+                console.warn('Profile creation skipped:', profileError.message);
+              }
+            } catch (profileErr) {
+              console.warn('Profile creation error:', profileErr);
+            }
+          }
+
           // 이메일 확인이 필요한 경우
           if (data.user && !data.session) {
             return {
@@ -225,7 +252,7 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      // 프로필 조회
+      // 프로필 조회 (없으면 자동 생성)
       fetchProfile: async (userId) => {
         try {
           const { data, error } = await supabase
@@ -242,6 +269,41 @@ export const useAuthStore = create<AuthStore>()(
 
           if (data) {
             set({ profile: data });
+          } else {
+            // 프로필이 없으면 자동 생성 (Google OAuth 등 외부 로그인 대응)
+            try {
+              const { data: { user } } = await supabase.auth.getUser();
+              if (user) {
+                const username = user.user_metadata?.username || 
+                                 user.user_metadata?.name || 
+                                 user.email?.split('@')[0] || 
+                                 `Player_${userId.slice(0, 8)}`;
+
+                const { data: newProfile, error: insertError } = await supabase
+                  .from('profiles')
+                  .upsert({
+                    id: userId,
+                    username: username,
+                    rating: 1200,
+                    games_played: 0,
+                    games_won: 0,
+                    games_lost: 0,
+                    games_drawn: 0,
+                  }, {
+                    onConflict: 'id',
+                  })
+                  .select()
+                  .single();
+
+                if (!insertError && newProfile) {
+                  set({ profile: newProfile });
+                } else {
+                  console.warn('Profile auto-creation failed:', insertError?.message);
+                }
+              }
+            } catch (createErr) {
+              console.warn('Profile auto-creation error:', createErr);
+            }
           }
         } catch (error) {
           console.warn('Profile fetch error:', error);
