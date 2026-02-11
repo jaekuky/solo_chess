@@ -7,3 +7,5 @@ export { DifficultyBreakdown } from './DifficultyBreakdown';
 export { TrendChart } from './TrendChart';
 export { TimeOfDayChart } from './TimeOfDayChart';
 export { EndReasonChart } from './EndReasonChart';
+export { PeriodComparisonChart } from './PeriodComparisonChart';
+export { PerformanceTimeline } from './PerformanceTimeline';

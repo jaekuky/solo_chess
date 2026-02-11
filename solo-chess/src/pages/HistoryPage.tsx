@@ -10,6 +10,8 @@ import {
   TrendChart,
   TimeOfDayChart,
   EndReasonChart,
+  PeriodComparisonChart,
+  PerformanceTimeline,
 } from '@/components/statistics';
 import { Button } from '@/components/common';
 import { useStatisticsStore } from '@/stores';
@@ -23,6 +25,7 @@ type TabType = 'overview' | 'analytics' | 'games' | 'achievements';
 export function HistoryPage() {
   const { statistics, getWinRate, getDailyStats } = useStatisticsStore();
   const {
+    gameRecords,
     filteredRecords,
     filter,
     setFilter,
@@ -244,16 +247,26 @@ export function HistoryPage() {
     </div>
   );
 
-  // 심층 분석 탭 (새로 추가)
+  // 심층 분석 탭
   const AnalyticsTab = () => (
     <div className="space-y-6">
-      {/* 승률 트렌드 */}
+      {/* 시계열 트렌드 차트 (풀 너비, 핵심 차트) */}
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-        <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-1">승률 추이</h3>
+        <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-1">트렌드 분석</h3>
         <p className="text-xs text-gray-500 mb-4">
-          7일/30일 이동평균으로 승률 변화를 추적합니다.
+          다양한 지표의 시계열 추이를 추적하고, 이전 기간과 비교하세요.
         </p>
-        <TrendChart dailyStats={statistics.dailyStats} days={90} />
+        <TrendChart dailyStats={statistics.dailyStats} />
+      </div>
+
+      {/* 기간 비교 차트 (풀 너비) */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        <PeriodComparisonChart dailyStats={statistics.dailyStats} />
+      </div>
+
+      {/* 게임별 퍼포먼스 타임라인 (풀 너비) */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        <PerformanceTimeline gameRecords={gameRecords} />
       </div>
 
       {/* 2컬럼: 시간대 + 종료사유 */}
