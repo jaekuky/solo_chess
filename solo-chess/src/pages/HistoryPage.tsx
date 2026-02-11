@@ -12,6 +12,8 @@ import {
   EndReasonChart,
   PeriodComparisonChart,
   PerformanceTimeline,
+  ActivityHeatmap,
+  WeeklyPatternHeatmap,
 } from '@/components/statistics';
 import { Button } from '@/components/common';
 import { useStatisticsStore } from '@/stores';
@@ -192,6 +194,13 @@ export function HistoryPage() {
         </div>
       </div>
 
+      {/* 활동 히트맵 (GitHub 스타일) */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-1">활동 히트맵</h3>
+        <p className="text-xs text-gray-500 mb-4">최근 90일간 플레이 활동을 한눈에 확인하세요.</p>
+        <ActivityHeatmap dailyStats={statistics.dailyStats} />
+      </div>
+
       {/* 활동 차트 (풀 너비) */}
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
         <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-4">활동 및 성과</h3>
@@ -267,6 +276,15 @@ export function HistoryPage() {
       {/* 게임별 퍼포먼스 타임라인 (풀 너비) */}
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
         <PerformanceTimeline gameRecords={gameRecords} />
+      </div>
+
+      {/* 요일×시간 활동 패턴 히트맵 (풀 너비) */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-1">활동 패턴 히트맵</h3>
+        <p className="text-xs text-gray-500 mb-4">
+          요일과 시간대별 플레이 패턴을 분석하세요. 언제 가장 많이, 잘 플레이하는지 한눈에 파악할 수 있습니다.
+        </p>
+        <WeeklyPatternHeatmap gameRecords={gameRecords} />
       </div>
 
       {/* 2컬럼: 시간대 + 종료사유 */}
