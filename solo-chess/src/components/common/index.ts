@@ -14,3 +14,4 @@ export { ToastProvider, useToast } from './Toast';
 export { ErrorBoundary } from './ErrorBoundary';
 export { EmptyState } from './EmptyState';
 export { TouchableButton } from './TouchableButton';
+export { DateRangePicker } from './DateRangePicker';

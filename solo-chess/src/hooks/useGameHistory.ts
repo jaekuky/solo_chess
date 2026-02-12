@@ -58,27 +58,39 @@ export function useGameHistory(): UseGameHistoryReturn {
 
     // 기간 필터
     if (filter.period !== 'all') {
-      const now = filterTimestamp;
-      let cutoff: number;
+      if (filter.period === 'custom' && filter.customDateRange) {
+        const startTimestamp = new Date(
+          filter.customDateRange.startDate + 'T00:00:00',
+        ).getTime();
+        const endTimestamp = new Date(
+          filter.customDateRange.endDate + 'T23:59:59.999',
+        ).getTime();
+        records = records.filter(
+          (r) => r.playedAt >= startTimestamp && r.playedAt <= endTimestamp,
+        );
+      } else if (filter.period !== 'custom') {
+        const now = filterTimestamp;
+        let cutoff: number;
 
-      switch (filter.period) {
-        case 'today':
-          cutoff = new Date(now).setHours(0, 0, 0, 0);
-          break;
-        case 'week':
-          cutoff = now - 7 * 24 * 60 * 60 * 1000;
-          break;
-        case 'month':
-          cutoff = now - 30 * 24 * 60 * 60 * 1000;
-          break;
-        case 'year':
-          cutoff = now - 365 * 24 * 60 * 60 * 1000;
-          break;
-        default:
-          cutoff = 0;
+        switch (filter.period) {
+          case 'today':
+            cutoff = new Date(now).setHours(0, 0, 0, 0);
+            break;
+          case 'week':
+            cutoff = now - 7 * 24 * 60 * 60 * 1000;
+            break;
+          case 'month':
+            cutoff = now - 30 * 24 * 60 * 60 * 1000;
+            break;
+          case 'year':
+            cutoff = now - 365 * 24 * 60 * 60 * 1000;
+            break;
+          default:
+            cutoff = 0;
+        }
+
+        records = records.filter((r) => r.playedAt >= cutoff);
       }
-
-      records = records.filter((r) => r.playedAt >= cutoff);
     }
 
     // 난이도 필터

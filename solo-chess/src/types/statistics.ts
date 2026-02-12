@@ -99,9 +99,13 @@ export interface Statistics {
 
 // 통계 필터
 export interface StatsFilter {
-  period: 'all' | 'today' | 'week' | 'month' | 'year';
+  period: 'all' | 'today' | 'week' | 'month' | 'year' | 'custom';
   difficulty: Difficulty | 'all';
   color: PieceColor | 'all';
+  customDateRange?: {
+    startDate: string; // YYYY-MM-DD
+    endDate: string; // YYYY-MM-DD
+  };
 }
 
 // 초기 난이도별 통계

@@ -15,7 +15,7 @@ import {
   ActivityHeatmap,
   WeeklyPatternHeatmap,
 } from '@/components/statistics';
-import { Button } from '@/components/common';
+import { Button, DateRangePicker } from '@/components/common';
 import { useStatisticsStore } from '@/stores';
 import { useGameHistory } from '@/hooks';
 import type { StatsFilter } from '@/types';
@@ -471,14 +471,28 @@ export function HistoryPage() {
     <div className="space-y-4">
       {/* 필터 */}
       <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3 items-end">
           <div>
             <label className="text-xs text-gray-500 block mb-1">기간</label>
             <select
               value={filter.period}
-              onChange={(e) =>
-                setFilter({ period: e.target.value as StatsFilter['period'] })
-              }
+              onChange={(e) => {
+                const period = e.target.value as StatsFilter['period'];
+                if (period === 'custom') {
+                  // 커스텀 선택 시 기본 범위(최근 30일)로 초기화
+                  const end = new Date();
+                  const start = new Date();
+                  start.setDate(start.getDate() - 29);
+                  const startStr = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`;
+                  const endStr = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`;
+                  setFilter({
+                    period: 'custom',
+                    customDateRange: { startDate: startStr, endDate: endStr },
+                  });
+                } else {
+                  setFilter({ period });
+                }
+              }}
               className="px-3 py-1.5 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-700 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             >
               <option value="all">전체 기간</option>
@@ -486,8 +500,23 @@ export function HistoryPage() {
               <option value="week">이번 주</option>
               <option value="month">이번 달</option>
               <option value="year">올해</option>
+              <option value="custom">직접 선택</option>
             </select>
           </div>
+
+          {/* 커스텀 날짜 범위 선택기 */}
+          {filter.period === 'custom' && filter.customDateRange && (
+            <DateRangePicker
+              startDate={filter.customDateRange.startDate}
+              endDate={filter.customDateRange.endDate}
+              onRangeChange={(startDate, endDate) =>
+                setFilter({
+                  period: 'custom',
+                  customDateRange: { startDate, endDate },
+                })
+              }
+            />
+          )}
 
           <div>
             <label className="text-xs text-gray-500 block mb-1">난이도</label>
