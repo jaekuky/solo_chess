@@ -3,6 +3,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/common';
 import { WinRateChart } from '@/components/statistics';
+import { GoalPanel } from '@/components/goals';
 import { useStatisticsStore, useLearningStore } from '@/stores';
 import { useGameStorage } from '@/hooks';
 import { ROUTES } from '@/constants';
@@ -55,6 +56,11 @@ export function HomePage() {
             🤖 AI와 대전
           </Button>
         </Link>
+      </div>
+
+      {/* 오늘의 목표 */}
+      <div className="mb-8 bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm">
+        <GoalPanel compact />
       </div>
 
       {/* 통계 요약 */}

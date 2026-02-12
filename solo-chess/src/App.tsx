@@ -3,6 +3,8 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from '@/components/layout';
+import { ToastProvider } from '@/components/common';
+import { GoalNotificationManager } from '@/components/goals';
 import { useSettingsStore } from '@/stores';
 import { preloadSounds } from '@/utils/sounds';
 import { ROUTES } from '@/constants';
@@ -44,8 +46,10 @@ function App() {
   }, []);
 
   return (
+    <ToastProvider>
     <BrowserRouter>
       <Layout>
+        <GoalNotificationManager />
         <Routes>
           <Route path={ROUTES.HOME} element={<HomePage />} />
           <Route path={ROUTES.LOBBY} element={<LobbyPage />} />
@@ -64,6 +68,7 @@ function App() {
         </Routes>
       </Layout>
     </BrowserRouter>
+    </ToastProvider>
   );
 }
 

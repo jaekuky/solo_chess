@@ -20,6 +20,7 @@ import {
   FunnelAnalysis,
 } from '@/components/statistics';
 import { Button, DateRangePicker } from '@/components/common';
+import { GoalPanel } from '@/components/goals';
 import { useStatisticsStore } from '@/stores';
 import { useGameHistory } from '@/hooks';
 import type { StatsFilter } from '@/types';
@@ -219,6 +220,15 @@ export function HistoryPage() {
   // 개요 탭
   const OverviewTab = () => (
     <div className="space-y-6">
+      {/* 목표 관리 */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-1">목표 관리</h3>
+        <p className="text-xs text-gray-500 mb-4">
+          일일/주간 목표를 설정하고, 달성 현황을 추적하세요.
+        </p>
+        <GoalPanel />
+      </div>
+
       {/* KPI 요약 카드 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard
