@@ -15,6 +15,7 @@ import {
   ActivityHeatmap,
   WeeklyPatternHeatmap,
   OpeningAnalysis,
+  SegmentComparison,
 } from '@/components/statistics';
 import { Button, DateRangePicker } from '@/components/common';
 import { useStatisticsStore } from '@/stores';
@@ -419,6 +420,15 @@ export function HistoryPage() {
       {/* 기간 비교 차트 (풀 너비) */}
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
         <PeriodComparisonChart dailyStats={statistics.dailyStats} />
+      </div>
+
+      {/* 세그먼트 비교 레이더 차트 (풀 너비) */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-1">세그먼트 비교</h3>
+        <p className="text-xs text-gray-500 mb-4">
+          난이도, 색상, 기간별 성과를 레이더 차트로 비교 분석하세요.
+        </p>
+        <SegmentComparison statistics={statistics} gameRecords={gameRecords} />
       </div>
 
       {/* 게임별 퍼포먼스 타임라인 (풀 너비) */}

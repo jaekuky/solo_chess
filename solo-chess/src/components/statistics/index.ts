@@ -12,3 +12,4 @@ export { PerformanceTimeline } from './PerformanceTimeline';
 export { ActivityHeatmap } from './ActivityHeatmap';
 export { WeeklyPatternHeatmap } from './WeeklyPatternHeatmap';
 export { OpeningAnalysis } from './OpeningAnalysis';
+export { SegmentComparison } from './SegmentComparison';
