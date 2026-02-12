@@ -17,6 +17,7 @@ import {
   OpeningAnalysis,
   SegmentComparison,
   RetentionCohortChart,
+  FunnelAnalysis,
 } from '@/components/statistics';
 import { Button, DateRangePicker } from '@/components/common';
 import { useStatisticsStore } from '@/stores';
@@ -430,6 +431,15 @@ export function HistoryPage() {
           난이도, 색상, 기간별 성과를 레이더 차트로 비교 분석하세요.
         </p>
         <SegmentComparison statistics={statistics} gameRecords={gameRecords} />
+      </div>
+
+      {/* 퍼널 분석 (풀 너비) */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-1">퍼널 분석</h3>
+        <p className="text-xs text-gray-500 mb-4">
+          게임 진행 단계별 전환율과 이탈률을 분석합니다. 어디서 가장 많이 이탈하는지, 어떤 단계가 강한지 확인하세요.
+        </p>
+        <FunnelAnalysis gameRecords={gameRecords} statistics={statistics} />
       </div>
 
       {/* 리텐션/코호트 분석 (풀 너비) */}
