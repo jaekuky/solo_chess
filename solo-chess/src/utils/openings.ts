@@ -1,7 +1,7 @@
 // src/utils/openings.ts
 // ECO 오프닝 데이터베이스 및 오프닝 감지 유틸리티
 
-import type { Move, GameRecord, GameResult } from '@/types';
+import type { Move, GameRecord } from '@/types';
 
 // ── 오프닝 정보 ────────────────────────────────────────────────
 export interface OpeningInfo {
