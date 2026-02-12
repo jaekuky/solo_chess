@@ -5,3 +5,4 @@ export * from './formatters';
 export * from './aiDifficulty';
 export * from './storage';
 export * from './sounds';
+export * from './openings';

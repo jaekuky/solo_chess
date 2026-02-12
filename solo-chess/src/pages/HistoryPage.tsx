@@ -14,6 +14,7 @@ import {
   PerformanceTimeline,
   ActivityHeatmap,
   WeeklyPatternHeatmap,
+  OpeningAnalysis,
 } from '@/components/statistics';
 import { Button, DateRangePicker } from '@/components/common';
 import { useStatisticsStore } from '@/stores';
@@ -453,6 +454,15 @@ export function HistoryPage() {
           </p>
           <EndReasonChart stats={statistics.byEndReason} />
         </div>
+      </div>
+
+      {/* 오프닝 분석 (풀 너비) */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-1">오프닝 분석</h3>
+        <p className="text-xs text-gray-500 mb-4">
+          자주 사용하는 오프닝과 오프닝별 성과를 분석하세요. ECO 코드 기반으로 자동 분류됩니다.
+        </p>
+        <OpeningAnalysis gameRecords={gameRecords} />
       </div>
 
       {/* 난이도별 분석 (풀 너비) */}
