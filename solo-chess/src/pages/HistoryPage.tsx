@@ -46,6 +46,10 @@ export function HistoryPage() {
     const gamesData: number[] = [];
     const winsData: number[] = [];
     const durationData: number[] = [];
+    const avgDurationData: number[] = [];
+    const checkmateData: number[] = [];
+    const movesData: number[] = [];
+    const hintsData: number[] = [];
 
     for (let i = 13; i >= 0; i--) {
       const date = new Date(today);
@@ -56,10 +60,44 @@ export function HistoryPage() {
       gamesData.push(dayStat?.gamesPlayed || 0);
       winsData.push(dayStat?.wins || 0);
       durationData.push(dayStat?.totalDuration || 0);
+      avgDurationData.push(
+        dayStat && dayStat.gamesPlayed > 0
+          ? Math.round(dayStat.totalDuration / dayStat.gamesPlayed)
+          : 0,
+      );
+
+      // gameRecords 기반 일별 스파크라인
+      const dayRecords = gameRecords.filter((r) => {
+        const recordDate = new Date(r.playedAt).toISOString().split('T')[0];
+        return recordDate === dateStr;
+      });
+
+      checkmateData.push(
+        dayRecords.filter(
+          (r) => r.result === 'win' && r.endReason === 'checkmate',
+        ).length,
+      );
+      movesData.push(
+        dayRecords.length > 0
+          ? dayRecords.reduce((s, r) => s + r.moveCount, 0) /
+              dayRecords.length
+          : 0,
+      );
+      hintsData.push(
+        dayRecords.reduce((s, r) => s + r.hintsUsed, 0),
+      );
     }
 
-    return { gamesData, winsData, durationData };
-  }, [getDailyStats]);
+    return {
+      gamesData,
+      winsData,
+      durationData,
+      avgDurationData,
+      checkmateData,
+      movesData,
+      hintsData,
+    };
+  }, [getDailyStats, gameRecords]);
 
   // 트렌드 계산 (이번 주 vs 지난 주)
   const trends = useMemo(() => {
@@ -79,9 +117,22 @@ export function HistoryPage() {
     );
     const thisWeekWins = thisWeekStats.reduce((s, d) => s + d.wins, 0);
     const lastWeekWins = lastWeekStats.reduce((s, d) => s + d.wins, 0);
+    const thisWeekDuration = thisWeekStats.reduce(
+      (s, d) => s + d.totalDuration,
+      0,
+    );
+    const lastWeekDuration = lastWeekStats.reduce(
+      (s, d) => s + d.totalDuration,
+      0,
+    );
 
     const thisWinRate = thisWeekGames > 0 ? (thisWeekWins / thisWeekGames) * 100 : 0;
     const lastWinRate = lastWeekGames > 0 ? (lastWeekWins / lastWeekGames) * 100 : 0;
+
+    const thisAvgDuration =
+      thisWeekGames > 0 ? thisWeekDuration / thisWeekGames : 0;
+    const lastAvgDuration =
+      lastWeekGames > 0 ? lastWeekDuration / lastWeekGames : 0;
 
     const gamesTrend = lastWeekGames > 0
       ? ((thisWeekGames - lastWeekGames) / lastWeekGames) * 100
@@ -91,8 +142,75 @@ export function HistoryPage() {
       ? thisWinRate - lastWinRate
       : thisWinRate > 0 ? thisWinRate : 0;
 
-    return { gamesTrend, winRateTrend };
-  }, [getDailyStats]);
+    const durationTrend = lastWeekDuration > 0
+      ? ((thisWeekDuration - lastWeekDuration) / lastWeekDuration) * 100
+      : thisWeekDuration > 0 ? 100 : 0;
+
+    const avgDurationTrend = lastAvgDuration > 0
+      ? ((thisAvgDuration - lastAvgDuration) / lastAvgDuration) * 100
+      : thisAvgDuration > 0 ? 100 : 0;
+
+    // gameRecords 기반 주간 트렌드 계산
+    const now = Date.now();
+    const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000;
+    const twoWeeksAgo = now - 14 * 24 * 60 * 60 * 1000;
+
+    const thisWeekRecords = gameRecords.filter(
+      (r) => r.playedAt >= oneWeekAgo,
+    );
+    const lastWeekRecords = gameRecords.filter(
+      (r) => r.playedAt >= twoWeeksAgo && r.playedAt < oneWeekAgo,
+    );
+
+    // 체크메이트 트렌드
+    const thisWeekCheckmates = thisWeekRecords.filter(
+      (r) => r.result === 'win' && r.endReason === 'checkmate',
+    ).length;
+    const lastWeekCheckmates = lastWeekRecords.filter(
+      (r) => r.result === 'win' && r.endReason === 'checkmate',
+    ).length;
+    const checkmateTrend = lastWeekCheckmates > 0
+      ? ((thisWeekCheckmates - lastWeekCheckmates) / lastWeekCheckmates) * 100
+      : thisWeekCheckmates > 0 ? 100 : 0;
+
+    // 평균 수 트렌드
+    const thisWeekAvgMoves =
+      thisWeekRecords.length > 0
+        ? thisWeekRecords.reduce((s, r) => s + r.moveCount, 0) /
+            thisWeekRecords.length
+        : 0;
+    const lastWeekAvgMoves =
+      lastWeekRecords.length > 0
+        ? lastWeekRecords.reduce((s, r) => s + r.moveCount, 0) /
+            lastWeekRecords.length
+        : 0;
+    const avgMovesTrend = lastWeekAvgMoves > 0
+      ? ((thisWeekAvgMoves - lastWeekAvgMoves) / lastWeekAvgMoves) * 100
+      : thisWeekAvgMoves > 0 ? 100 : 0;
+
+    // 힌트 사용 트렌드
+    const thisWeekHints = thisWeekRecords.reduce(
+      (s, r) => s + r.hintsUsed,
+      0,
+    );
+    const lastWeekHints = lastWeekRecords.reduce(
+      (s, r) => s + r.hintsUsed,
+      0,
+    );
+    const hintsTrend = lastWeekHints > 0
+      ? ((thisWeekHints - lastWeekHints) / lastWeekHints) * 100
+      : thisWeekHints > 0 ? 100 : 0;
+
+    return {
+      gamesTrend,
+      winRateTrend,
+      durationTrend,
+      avgDurationTrend,
+      checkmateTrend,
+      avgMovesTrend,
+      hintsTrend,
+    };
+  }, [getDailyStats, gameRecords]);
 
   // 개요 탭
   const OverviewTab = () => (
@@ -136,6 +254,11 @@ export function HistoryPage() {
           icon="⏱️"
           color="purple"
           sparklineData={sparklines.durationData}
+          trend={
+            statistics.totalGames > 0
+              ? { value: trends.durationTrend, isPositive: trends.durationTrend >= 0 }
+              : undefined
+          }
         />
       </div>
 
@@ -215,17 +338,35 @@ export function HistoryPage() {
           subtitle={`체크메이트 패배: ${statistics.checkmatesReceived}`}
           icon="♚"
           color="green"
+          sparklineData={sparklines.checkmateData}
+          trend={
+            statistics.checkmatesGiven > 0
+              ? { value: trends.checkmateTrend, isPositive: trends.checkmateTrend >= 0 }
+              : undefined
+          }
         />
         <StatCard
           title="평균 게임 시간"
           value={formatDuration(Math.round(statistics.averageGameDuration))}
           icon="⏰"
+          sparklineData={sparklines.avgDurationData}
+          trend={
+            statistics.totalGames > 0
+              ? { value: trends.avgDurationTrend, isPositive: trends.avgDurationTrend >= 0 }
+              : undefined
+          }
         />
         <StatCard
           title="평균 수"
           value={statistics.averageMovesPerGame.toFixed(1)}
           subtitle="게임당"
           icon="♟️"
+          sparklineData={sparklines.movesData}
+          trend={
+            statistics.totalGames > 0
+              ? { value: trends.avgMovesTrend, isPositive: trends.avgMovesTrend >= 0 }
+              : undefined
+          }
         />
         <StatCard
           title="최단 승리"
@@ -251,6 +392,12 @@ export function HistoryPage() {
           value={statistics.totalHintsUsed}
           icon="💡"
           color="yellow"
+          sparklineData={sparklines.hintsData}
+          trend={
+            statistics.totalHintsUsed > 0
+              ? { value: trends.hintsTrend, isPositive: trends.hintsTrend <= 0 }
+              : undefined
+          }
         />
       </div>
     </div>
